@@ -13,6 +13,8 @@ import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
+ * 提供生成验证码功能
+ * 有字符串验证码和算式验证码两中类型
  * @author lvjp
  * @date 2019/4/19
  */
@@ -23,13 +25,19 @@ public class VerificationCode {
      * 封装了验证码图片和验证码
      * 并对外提供访问属性的方法
      */
-    public static class Verification {
+    public static class VerificationImage {
 
+        /**
+         * 验证码图片
+         */
         private BufferedImage bufferedImage;
 
+        /**
+         * 验证码值
+         */
         private String rightCode;
 
-        private Verification(BufferedImage bufferedImage, String rightCode) {
+        private VerificationImage(BufferedImage bufferedImage, String rightCode) {
             this.bufferedImage = bufferedImage;
             this.rightCode = rightCode;
         }
@@ -48,8 +56,15 @@ public class VerificationCode {
      * 封装算术表达式和其结果
      */
     private static class Equation{
+
+        /**
+         * 算术表达式
+         */
         private char[] expression;
 
+        /**
+         * 表达式的值
+         */
         private int result;
 
         Equation(char[] expression, int result) {
@@ -83,9 +98,9 @@ public class VerificationCode {
     }
 
     /**
-     * 存放验证码的Map中的key
+     * 存放验证码的 session 中的key
      */
-    public static final String CODE_KEY = "CODE-KEY";
+    public static final String SESSION_CODE_KEY = "CODE-KEY";
 
     /**
      * 默认验证码类型
@@ -100,7 +115,7 @@ public class VerificationCode {
     /**
      * 算数验证码需要的运算符
      */
-    private static final String OPERATE_CHARS = "+-x";
+    private static final String OPERATOR_CHARS = "+-x";
 
     /**
      * 默认干扰线的数量
@@ -188,6 +203,9 @@ public class VerificationCode {
         operatorMap.put('x', 2);
     }
 
+    /**
+     * 随机数生成对象
+     */
     private ThreadLocalRandom random;
 
     public VerificationCode() {
@@ -203,6 +221,9 @@ public class VerificationCode {
         fontBasisSize = DEFAULT_FONT_BASIS_SIZE;
     }
 
+    /**
+     * @param type 验证码类型
+     */
     public VerificationCode(CodeTypeEnum type) {
         random = ThreadLocalRandom.current();
 
@@ -218,9 +239,9 @@ public class VerificationCode {
 
     /**
      * 获取验证码对象
-     * @return Verification 验证码对象
+     * @return VerificationImage 验证码对象
      */
-    public Verification getVerificationImage(){
+    public VerificationImage getVerificationImage(){
         BufferedImage bufferedImage = new BufferedImage(width, height,BufferedImage.TYPE_INT_BGR);
         char[] codes = null;
         String rightCode = null;
@@ -242,13 +263,13 @@ public class VerificationCode {
         }
         drawString(graphics,codes);
         graphics.dispose();
-        return new Verification(bufferedImage, rightCode);
+        return new VerificationImage(bufferedImage, rightCode);
     }
 
     /**
      * 在 http 中设置验证图片和验证码
-     * @param request http 请求
-     * @param response http 响应
+     * @param request http 请求, 在其中设置验证码
+     * @param response http 响应, 设置返回验证码图片
      */
     public void setHttpVerificationCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("image/jpeg");//设置相应类型,输出的内容为图片
@@ -258,10 +279,10 @@ public class VerificationCode {
         response.setDateHeader("Expires", 0);
 
         HttpSession session = request.getSession();
-        session.removeAttribute(CODE_KEY);
-        Verification verification = getVerificationImage();
-        session.setAttribute(CODE_KEY, verification.getRightCode());
-        ImageIO.write(verification.getBufferedImage(),"JPEG",response.getOutputStream());
+        session.removeAttribute(SESSION_CODE_KEY);
+        VerificationImage verificationImage = getVerificationImage();
+        session.setAttribute(SESSION_CODE_KEY, verificationImage.getRightCode());
+        ImageIO.write(verificationImage.getBufferedImage(),"JPEG",response.getOutputStream());
     }
 
     private Font getFont(){
@@ -270,6 +291,7 @@ public class VerificationCode {
 
     /**
      * 获取干扰线随机颜色
+     * @return 在 COLOR_BOUND 边界范围内随机生成的颜色
      */
     private Color getRandColor(){
         int r = random.nextInt(COLOR_BOUND);
@@ -280,6 +302,7 @@ public class VerificationCode {
 
     /**
      * 绘制干扰线
+     * @param graphics 图形
      */
     private void drawLine(Graphics graphics){
         int x = random.nextInt(width);
@@ -318,9 +341,9 @@ public class VerificationCode {
     }
 
     /**
-     * 获取算式验证码, 10 以内运算
+     * 获取算式验证码
      * @param operatorConut 运算符数量
-     * @return equation 算式验证码
+     * @return Equation 算式验证码对象
      */
     private Equation getEquation(int operatorConut){
         int[] nums = new int[operatorConut + 1];
@@ -332,7 +355,7 @@ public class VerificationCode {
             expression[i * 2] = (char) (nums[i] + 48);
         }
         for (int i = 0; i < operatorConut; i++) {
-            operates[i] = OPERATE_CHARS.charAt(random.nextInt(OPERATE_CHARS.length()));
+            operates[i] = OPERATOR_CHARS.charAt(random.nextInt(OPERATOR_CHARS.length()));
             expression[i * 2 + 1] = operates[i];
         }
         return new Equation(expression, getResult(nums, operates));
@@ -340,8 +363,8 @@ public class VerificationCode {
 
     /**
      * 计算算式结果
-     * @param nums 数字
-     * @param operators 运算符
+     * @param nums 数字数组
+     * @param operators 运算符数组
      * @return 计算结果
      */
     private int getResult(int[] nums,char[] operators){
@@ -372,6 +395,7 @@ public class VerificationCode {
      * @param num1 第一个数字
      * @param num2 第二个数字
      * @param operator 运算符
+     * @return 返回表达式的值
      */
     private int computerResult(Integer num1, Integer num2, Character operator){
         int result = 0;
