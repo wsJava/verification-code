@@ -1,5 +1,22 @@
 # verification-code 验证码生成工具
 
+### 安装
+
+#### 直接将 jar 包导入项目 lib 文件夹下
+#### 使用 maven 
+- 安装到本地 maven 仓库
+```
+mvn install:install-file -Dfile=verification-code-1.0.0.jar -DgroupId=top.lvjp -DartifactId=verification-code -Dversion=1.0.0 -Dpackaging=jar
+```
+- 引入依赖
+```xml
+<dependency>
+    <groupId>top.lvjp</groupId>
+    <artifactId>verification-code</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ### 用法
 - 使用```new VerificationCode()```生成默认验证码工具;
 - 也可以使用```new VerificationCode(CodeTypeEnum type)```构造方法指定验证码类型;

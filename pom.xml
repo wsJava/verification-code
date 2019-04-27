@@ -5,8 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.lvjp</groupId>
-    <artifactId>verificationImage-code</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>verification-code</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
     <build>
         <plugins>
             <plugin>
