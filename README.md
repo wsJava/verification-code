@@ -6,14 +6,14 @@
 #### 使用 maven 
 - 安装到本地 maven 仓库
 ```
-mvn install:install-file -Dfile=verification-code-1.0.0.jar -DgroupId=top.lvjp -DartifactId=verification-code -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=verification-code-1.0.0.jar -DgroupId=top.lvjp -DartifactId=verification-code -Dversion=1.0.1 -Dpackaging=jar
 ```
 - 引入依赖
 ```xml
 <dependency>
     <groupId>top.lvjp</groupId>
     <artifactId>verification-code</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
