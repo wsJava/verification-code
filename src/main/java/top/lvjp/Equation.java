@@ -1,8 +1,8 @@
 package top.lvjp;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -85,8 +85,8 @@ public class Equation {
      * @return 计算结果
      */
     private static int getResult(int[] nums, char[] operators) {
-        Stack<Integer> numStack = new Stack<>();
-        Stack<Character> operatorStack = new Stack<>();
+        LinkedList<Integer> numStack = new LinkedList<>();
+        LinkedList<Character> operatorStack = new LinkedList<>();
         numStack.push(nums[0]);
         numStack.push(nums[1]);
         operatorStack.push(operators[0]);
@@ -99,7 +99,7 @@ public class Equation {
             numStack.push(nums[i + 1]);
             operatorStack.push(operators[i]);
         }
-        while (!operatorStack.empty()) {
+        while (!operatorStack.isEmpty()) {
             int num2 = numStack.pop();
             int num1 = numStack.pop();
             numStack.push(computerResult(num1, num2, operatorStack.pop()));
